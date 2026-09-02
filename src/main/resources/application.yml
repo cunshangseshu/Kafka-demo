@@ -1,0 +1,24 @@
+server:
+  port: 8090
+spring:
+  application:
+    name: kafka-demo
+  # ==============================
+  # Kafka
+  # ==============================
+  kafka:
+    # Kafka Broker 地址
+    bootstrap-servers:
+      - localhost:9092
+  # ==============================
+  # Docker Compose
+  # ==============================
+  docker:
+    compose:
+      # 开启 Spring Boot Docker Compose 支持
+      enabled: true
+      # Spring Boot 启动：
+      #   自动启动 docker-compose.yml
+      # Spring Boot 停止：
+      #   自动 stop Kafka
+      lifecycle-management: start-and-stop
