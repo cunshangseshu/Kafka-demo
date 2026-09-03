@@ -17,6 +17,8 @@ services:
       # Spring Boot：localhost:9092
       - "9092:9092"
     environment:
+      # 关掉自动创建 Topic 功能，差点以为撞鬼了🤦‍♂️
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       # ======================================================
       # KRaft 基础配置
       # ======================================================

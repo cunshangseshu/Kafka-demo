@@ -16,22 +16,10 @@ import static com.example.constant.KafkaTopicConstants.ORDER_CREATED;
 @Slf4j
 @Component
 public class OrderEventConsumer {
-    /**
-     * 消费订单创建事件。
-     * topics: 监听哪个 Topic。
-     * groupId: 当前 Consumer 属于哪个 Consumer Group。
-     */
-    @KafkaListener(
-            topics = ORDER_CREATED,
-            groupId = ORDER_SERVICE,
-            concurrency = "3"
-    )
-    public void consumeOrderCreatedEvent(
-            ConsumerRecord<String, OrderCreatedEvent> record,
-            Acknowledgment acknowledgment
-    ) {
+    @KafkaListener(topics = ORDER_CREATED, groupId = ORDER_SERVICE, concurrency = "3")
+    public void consumeOrderCreatedEvent(ConsumerRecord<String, OrderCreatedEvent> record, Acknowledgment acknowledgment) {
         // ConsumerRecord 是 Kafka Consumer 实际收到的一条完整记录。
-        // 它不只有 Value，还包含：topi、partition、offset、key、value、timestamp、headers
+        // 它不只有 Value，还包含：topic、partition、offset、key、value、timestamp、headers
         log.info("\n[ Kafka ] 消息消费成功:\n thread={}\n topic={}\n partition={}\n offset={}\n key={}\n value={}",
                 Thread.currentThread().getName(),
                 record.topic(),
@@ -39,30 +27,19 @@ public class OrderEventConsumer {
                 record.offset(),
                 record.key(),
                 record.value());
-        /*
-         * ==================================================
-         * Kafka Consumer 异常重试实验
-         * ==================================================
-         * orderId = 88888 时，模拟业务处理异常。
-         * 注意：
-         *
-         * 这里不是 return，
-         * 而是真的抛出 RuntimeException。
-         */
+        // Kafka Consumer 异常重试实验
         if (record.value().orderId().equals(88888L)) {
             log.warn("\n[ Kafka ] 模拟业务异常:\n thread={}\n partition={}\n offset={}\n key={}",
                     Thread.currentThread().getName(),
                     record.partition(),
                     record.offset(),
-                    record.key()
-            );
+                    record.key());
             throw new RuntimeException("模拟订单业务处理失败");
         }
         acknowledgment.acknowledge();
         log.info("\n[ Kafka ] Offset 已请求提交:\n partition={}\n processedOffset={}\n nextOffset={}",
                 record.partition(),
                 record.offset(),
-                record.offset() + 1
-        );
+                record.offset() + 1);
     }
 }

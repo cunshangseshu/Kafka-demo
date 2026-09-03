@@ -17,20 +17,9 @@ import static com.example.constant.KafkaTopicConstants.ORDER_CREATED;
 @Slf4j
 @Component
 public class OrderEventProducer {
-    /**
-     * KafkaTemplate 是 Spring Kafka
-     * 提供的 Kafka Producer 操作模板。
-     * <p>
-     * 当前：
-     * <p>
-     * Key   = String
-     * Value = OrderCreatedEvent
-     */
+
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
-    /**
-     * 构造器注入。
-     */
     public OrderEventProducer(KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -41,27 +30,18 @@ public class OrderEventProducer {
      * @param event 订单创建事件
      */
     public void sendOrderCreatedEvent(OrderCreatedEvent event) {
-        /*
-         * 使用 orderId 作为 Kafka Message Key。
-         * 例如：
-         * orderId = 10001
-         * Kafka Key：
-         * "10001"
-         * 相同 Key 默认会稳定地选择相同 Partition，从而帮助我们保证： 同一个订单相关事件,在同一个 Partition 内保持顺序。
-         */
         String key = String.valueOf(event.orderId());
-        /*
-         * KafkaTemplate.send(...) 并不是同步等待 Kafka 完成后才返回。
-         * 它会返回：
-         * CompletableFuture<SendResult<...>>
-         * 后面 Kafka 真正返回发送结果以后，Future 才完成。
-         */
         CompletableFuture<SendResult<String, OrderCreatedEvent>> future = kafkaTemplate.send(ORDER_CREATED, key, event);
         // 注册异步回调。
         future.whenComplete((result, throwable) -> {
             // 发送失败。
             if (throwable != null) {
-                log.error("\n [ Kafka ]:消息发送失败\n topic={}\n key={}\n event={}\n", ORDER_CREATED, key, event, throwable);
+                log.error("\n [ Kafka ]:消息发送失败\n topic={}\n key={}\n event={}\n",
+                        ORDER_CREATED,
+                        key,
+                        event,
+                        throwable
+                );
                 return;
             }
             /*
@@ -75,7 +55,8 @@ public class OrderEventProducer {
                     metadata.partition(),
                     metadata.offset(),
                     key,
-                    event);
+                    event
+            );
         });
     }
 }

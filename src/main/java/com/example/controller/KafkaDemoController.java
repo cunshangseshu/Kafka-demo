@@ -28,9 +28,9 @@ public class KafkaDemoController {
      */
     @PostMapping("/orders")
     public String sendOrderCreatedEvent(@RequestBody CreateOrderRequest request) {
-         //HTTP Request  转换成：Kafka Event
+         // HTTP Request  <-- 转换成 -->  Kafka Event
         OrderCreatedEvent event = new OrderCreatedEvent(request.orderId(), request.userId(), request.amount(), LocalDateTime.now());
-        //发布 Kafka Event。
+        // 发布 Kafka Event。
         orderEventProducer.sendOrderCreatedEvent(event);
         return "订单创建事件已提交给 Kafka Producer";
     }
