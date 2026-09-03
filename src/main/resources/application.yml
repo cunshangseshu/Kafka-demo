@@ -7,9 +7,56 @@ spring:
   # Kafka
   # ==============================
   kafka:
-    # Kafka Broker 地址
+    # Kafka Broker 地址。
+    # Spring Boot 运行在 Windows 宿主机，
+    # 所以这里通过 localhost:9092 访问 Kafka。
     bootstrap-servers:
       - localhost:9092
+    # ==================================================
+    # Kafka Producer
+    # ==================================================
+    producer:
+      # ----------------------------------------------
+      # Key Serializer
+      # ----------------------------------------------
+      # 当前 Producer 的 Key 使用 String。
+      # 例如：orderId = 10001 最终转换成："10001" 再由 StringSerializer 转成 byte[]。
+      key-serializer:
+        org.apache.kafka.common.serialization.StringSerializer
+      # ----------------------------------------------
+      # Value Serializer
+      # ----------------------------------------------
+      # 当前业务消息使用：
+      # OrderCreatedEvent JsonSerializer 会把 Java 对象：OrderCreatedEvent 转换成 JSON，再发送到 Kafka。
+      value-serializer:
+        org.springframework.kafka.support.serializer.JsonSerializer
+      # ==================================================
+      # Kafka Consumer
+      # ==================================================
+    consumer:
+      # Kafka 消费者组。
+      # 当前我们也会在 @KafkaListener 中显式指定，这里先作为默认值保留。
+      group-id: order-service
+      # 如果当前 Consumer Group 没有历史 Offset，从哪里开始消费？
+      # earliest:从当前仍保留的最早消息开始。
+      auto-offset-reset: earliest
+      # Key:
+      # Kafka byte[]
+      # ↓
+      # String
+      key-deserializer:
+        org.apache.kafka.common.serialization.StringDeserializer
+      # Value:
+      # Kafka JSON byte[]
+      # ↓
+      # Java Object
+      value-deserializer:
+        org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        # 允许 JsonDeserializer
+        # 反序列化当前项目中的 Event。
+        spring.json.trusted.packages: com.example.event
+
   # ==============================
   # Docker Compose
   # ==============================
