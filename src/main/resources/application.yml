@@ -12,6 +12,9 @@ spring:
     # 所以这里通过 localhost:9092 访问 Kafka。
     bootstrap-servers:
       - localhost:9092
+    listener:
+      # 暂时使用手动立即确认，用于观察 Offset Commit。
+      ack-mode: manual_immediate
     # ==================================================
     # Kafka Producer
     # ==================================================

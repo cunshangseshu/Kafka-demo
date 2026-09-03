@@ -4,79 +4,42 @@
          xsi:schemaLocation="
          http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
-    <!--
-        Spring Boot 父工程：
-        主要帮助我们统一管理 Spring Boot 生态依赖版本。
-    -->
+    <!--Spring Boot 父工程：主要帮助我们统一管理 Spring Boot 生态依赖版本。-->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.13</version>
         <relativePath/>
     </parent>
-
     <groupId>com.example</groupId>
     <artifactId>kafka-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-
     <name>kafka-demo</name>
     <description>Spring Boot Kafka Learning Demo</description>
-
     <properties>
-
-        <!--
-            当前项目使用 Java 21。
-        -->
+        <!--当前项目使用 Java 21。-->
         <java.version>21</java.version>
-
     </properties>
-
     <dependencies>
-
-        <!--
-            Web：
-            后面使用 Controller + Apifox
-            调用 Producer 接口。
-        -->
+        <!--Web： 后面使用 Controller + Apifox 调用 Producer 接口。-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-
-        <!--
-            Spring Kafka：
-
-            KafkaTemplate
-            @KafkaListener
-            ProducerFactory
-            ConsumerFactory
-            KafkaAdmin
-            等核心能力都来自这里。
-
-            不手写版本号，
-            交给 Spring Boot dependency management。
-        -->
+        <!--Spring Kafka：KafkaTemplate、@KafkaListener、ProducerFactory、ConsumerFactory、KafkaAdmin 等核心能力都来自这里。不手写版本号，交给 Spring Boot dependency management。-->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-
-
         <!--
             Spring Boot Docker Compose 支持。
-
             它非常适合我们这个学习项目：
-
             IDEA 启动 Spring Boot
                     ↓
             Spring Boot 找到 docker-compose.yml
                     ↓
             自动启动 Kafka 容器
-
             这是开发期依赖，不属于真正业务依赖。
         -->
         <dependency>
@@ -84,16 +47,12 @@
             <artifactId>spring-boot-docker-compose</artifactId>
             <optional>true</optional>
         </dependency>
-
-
         <!-- 测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-
         <!-- Kafka 测试支持，后面再用 -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -105,19 +64,19 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <!--懒得解释lombok了-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
-
-
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
         </plugins>
     </build>
-
 </project>

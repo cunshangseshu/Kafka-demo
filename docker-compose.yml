@@ -3,8 +3,7 @@ services:
   # Kafka
   # ==========================================================
   kafka:
-    # Apache Kafka 官方镜像
-    image: apache/kafka:4.3.1
+    image: apache/kafka:4.2.1
     # Docker 容器名称
     container_name: kafka-learning
     # Docker 网络内部主机名
