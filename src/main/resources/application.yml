@@ -3,6 +3,15 @@ server:
 spring:
   application:
     name: kafka-demo
+  datasource:
+    url: jdbc:mysql://localhost:3308/kafka_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: kafka
+    password: kafka123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
   # ==============================
   # Kafka
   # ==============================
