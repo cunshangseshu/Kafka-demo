@@ -3,6 +3,11 @@ server:
 spring:
   application:
     name: kafka-demo
+
+
+
+
+
   datasource:
     url: jdbc:mysql://localhost:3308/kafka_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: kafka
@@ -12,6 +17,11 @@ spring:
     init:
       mode: always
       encoding: UTF-8
+
+
+
+
+
   # ==============================
   # Kafka
   # ==============================
@@ -24,50 +34,67 @@ spring:
     listener:
       # 暂时使用手动立即确认，用于观察 Offset Commit。
       ack-mode: manual_immediate
+
+
+
+
     # ==================================================
     # Kafka Producer
     # ==================================================
-    producer:
-      # ----------------------------------------------
-      # Key Serializer
-      # ----------------------------------------------
-      # 当前 Producer 的 Key 使用 String。
-      # 例如：orderId = 10001 最终转换成："10001" 再由 StringSerializer 转成 byte[]。
-      key-serializer:
-        org.apache.kafka.common.serialization.StringSerializer
-      # ----------------------------------------------
-      # Value Serializer
-      # ----------------------------------------------
-      # 当前业务消息使用：
-      # OrderCreatedEvent JsonSerializer 会把 Java 对象：OrderCreatedEvent 转换成 JSON，再发送到 Kafka。
-      value-serializer:
-        org.springframework.kafka.support.serializer.JsonSerializer
-      # ==================================================
-      # Kafka Consumer
-      # ==================================================
+    # producer:
+    # ==================================================
+    # Producer Serializer
+    # ==================================================
+    # Key / Value Serializer 不再直接配置在 application.yml。
+    # 原因：
+    # 当前 Producer 需要根据消息 Java 类型 “动态” （重点）选择 Serializer：
+    # String            -> StringSerializer
+    # OrderCreatedEvent -> JsonSerializer
+    # byte[]            -> ByteArraySerializer
+    # 具体配置见：KafkaProducerConfig.java
+
+
+    # ==================================================
+    # Kafka Consumer
+    # ==================================================
+    #    consumer:
+    #      group-id: order-service
+    #      auto-offset-reset: earliest
+    #      key-deserializer:
+    #        org.apache.kafka.common.serialization.StringDeserializer
+    #      value-deserializer:
+    #        org.springframework.kafka.support.serializer.JsonDeserializer
+    #      properties:
+    #        spring.json.trusted.packages: com.example.event
     consumer:
-      # Kafka 消费者组。
-      # 当前我们也会在 @KafkaListener 中显式指定，这里先作为默认值保留。
       group-id: order-service
-      # 如果当前 Consumer Group 没有历史 Offset，从哪里开始消费？
-      # earliest:从当前仍保留的最早消息开始。
       auto-offset-reset: earliest
-      # Key:
-      # Kafka byte[]
-      # ↓
-      # String
+      # 外层不再直接使用真正的反序列化器，
+      # 而是先交给 Spring Kafka 的异常处理反序列化器。
       key-deserializer:
-        org.apache.kafka.common.serialization.StringDeserializer
-      # Value:
-      # Kafka JSON byte[]
-      # ↓
-      # Java Object
+        org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer:
-        org.springframework.kafka.support.serializer.JsonDeserializer
+        org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        # 允许 JsonDeserializer
-        # 反序列化当前项目中的 Event。
-        spring.json.trusted.packages: com.example.event
+        # Key 真正的反序列化器
+        spring.deserializer.key.delegate.class:
+          org.apache.kafka.common.serialization.StringDeserializer
+        # Value 真正的反序列化器
+        spring.deserializer.value.delegate.class:
+          org.springframework.kafka.support.serializer.JsonDeserializer
+        # JsonDeserializer 允许反序列化的 Java 包
+        spring.json.trusted.packages:
+          com.example.event
+        # 当消息没有 Spring Kafka 的类型 Header 时，
+        # 默认按照 OrderCreatedEvent 进行反序列化。
+        # 这一条非常适合我们等会儿从 Kafbat 手动生产坏消息。
+        spring.json.value.default.type:
+          com.example.event.OrderCreatedEvent
+
+
+
+
+
 
   # ==============================
   # Docker Compose

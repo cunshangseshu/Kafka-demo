@@ -46,15 +46,6 @@ public class OrderCreatedEventService {
                     record.partition(),
                     record.offset()
             );
-            /*
-             * 故障实验：
-             * 幂等记录已经 INSERT，
-             * 但真正业务还没执行时模拟程序异常。
-             */
-            if (event.orderId().equals(30003L)) {
-                log.error("\n[ Kafka ] 故意制造事务异常:\n orderId={}\n 当前阶段=幂等记录已写入，业务数据尚未写入", event.orderId());
-                throw new RuntimeException("模拟：幂等记录写入成功后，订单业务处理失败");
-            }
         } catch (DuplicateKeyException exception) {
             log.warn("\n[ Kafka ] MySQL 幂等校验命中，跳过重复事件:\n orderId={}\n topic={}\n partition={}\n offset={}",
                     event.orderId(),
