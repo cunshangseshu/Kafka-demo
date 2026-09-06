@@ -33,7 +33,7 @@ public class OrderEventProducer {
     public void sendOrderCreatedEvent(OrderCreatedEvent event) {
         String key = String.valueOf(event.orderId());
         CompletableFuture<SendResult<String, OrderCreatedEvent>> future = kafkaTemplate.send(ORDER_CREATED, key, event);
-        // 注册异步回调。
+        // 注册异步回调
         future.whenComplete((result, throwable) -> {
             // 发送失败。
             if (throwable != null) {

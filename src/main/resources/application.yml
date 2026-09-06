@@ -26,13 +26,8 @@ spring:
   # Kafka
   # ==============================
   kafka:
-    # Kafka Broker 地址。
-    # Spring Boot 运行在 Windows 宿主机，
-    # 所以这里通过 localhost:9092 访问 Kafka。
-    bootstrap-servers:
-      - localhost:9092
+    bootstrap-servers: localhost:9092
     listener:
-      # 暂时使用手动立即确认，用于观察 Offset Commit。
       ack-mode: manual_immediate
 
 
@@ -42,48 +37,22 @@ spring:
     # Kafka Producer
     # ==================================================
     producer:
-      # Producer 发送消息后，
-      # 要等待所有 ISR 副本确认后才认为发送成功。
-      # all 与 -1 在 Kafka 中表示相同语义。
       acks: all
-      retries: 100
       properties:
-        # 开启 Kafka Producer 幂等发送。
-        # 主要解决 Producer 因网络抖动、超时、重试等原因
-        # 导致同一条消息被 Broker 重复写入的问题。
         enable.idempotence: true
-        # 开启幂等 Producer 时，Kafka 要求该值不能大于 5。
-        # 在满足协议约束的情况下，Kafka 能利用 ProducerId + Sequence Number
-        # 保证重试时不产生重复写入，并维持分区内顺序。
         max.in.flight.requests.per.connection: 5
-        delivery.timeout.ms: 5000
-        request.timeout.ms: 2000
-        retry.backoff.ms: 500
-        retry.backoff.max.ms: 500
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
     consumer:
       group-id: order-service
       auto-offset-reset: earliest
-      # 外层不再直接使用真正的反序列化器，
-      # 而是先交给 Spring Kafka 的异常处理反序列化器。
-      key-deserializer:
-        org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      value-deserializer:
-        org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
-        # Key 真正的反序列化器
-        spring.deserializer.key.delegate.class:
-          org.apache.kafka.common.serialization.StringDeserializer
-        # Value 真正的反序列化器
-        spring.deserializer.value.delegate.class:
-          org.springframework.kafka.support.serializer.JsonDeserializer
-        # JsonDeserializer 允许反序列化的 Java 包
-        spring.json.trusted.packages:
-          com.example.event
-        # 当消息没有 Spring Kafka 的类型 Header 时，
-        # 默认按照 OrderCreatedEvent 进行反序列化。
-        # 这一条非常适合我们等会儿从 Kafbat 手动生产坏消息。
-        spring.json.value.default.type:
-          com.example.event.OrderCreatedEvent
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.example.event
+        spring.json.value.default.type: com.example.event.OrderCreatedEvent
 
 
 
@@ -95,10 +64,10 @@ spring:
   # ==============================
   docker:
     compose:
-      # 开启 Spring Boot Docker Compose 支持
       enabled: true
-      # Spring Boot 启动：
-      #   自动启动 docker-compose.yml
-      # Spring Boot 停止：
-      #   自动 stop Kafka
       lifecycle-management: start-and-stop
+
+demo:
+  kafka:
+    consumer:
+      processing-delay-ms: 0
