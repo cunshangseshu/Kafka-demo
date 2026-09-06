@@ -1,12 +1,12 @@
 package com.example.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
-import static com.example.constant.KafkaTopicConstants.ORDER_CREATED;
-import static com.example.constant.KafkaTopicConstants.ORDER_CREATED_DLT;
+import static com.example.constant.KafkaTopicConstants.*;
 
 /**
  * Kafka Topic 配置类。
@@ -30,7 +30,13 @@ public class KafkaTopicConfig {
         return TopicBuilder.name(ORDER_CREATED).partitions(3).replicas(1).build();
     }
 
-@Bean
+    @Bean
     public NewTopic orderCreatedDltTopic() {
         return TopicBuilder.name(ORDER_CREATED_DLT).partitions(3).replicas(1).build();
-    }}
+    }
+
+    @Bean
+    public NewTopic producerReliabilityTestTopic() {
+        return TopicBuilder.name(PRODUCER_RELIABILITY_TEST).partitions(1).replicas(1).config(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, "2").build();
+    }
+}

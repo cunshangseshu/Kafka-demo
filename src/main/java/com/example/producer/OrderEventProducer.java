@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.CompletableFuture;
 
 import static com.example.constant.KafkaTopicConstants.ORDER_CREATED;
+import static com.example.constant.KafkaTopicConstants.PRODUCER_RELIABILITY_TEST;
 
 /**
  * 订单 Kafka Event Producer。
@@ -58,5 +59,30 @@ public class OrderEventProducer {
                     event
             );
         });
+    }
+
+    public void sendProducerReliabilityTest(OrderCreatedEvent event) {
+        String key = String.valueOf(event.orderId());
+        kafkaTemplate.send(PRODUCER_RELIABILITY_TEST, key, event)
+                .whenComplete(
+                        (result, exception) -> {
+                            if (exception != null) {
+                                log.error(" [ Kafka Producer Reliability ] 消息最终发送失败:\n topic={} \n key={} \n orderId={} \n exceptionType={} \n exceptionMessage={}",
+                                        PRODUCER_RELIABILITY_TEST,
+                                        key,
+                                        event.orderId(),
+                                        exception.getClass().getName(),
+                                        exception.getMessage()
+                                );
+                                return;
+                            }
+                            log.info(" [ Kafka Producer Reliability ] 消息发送成功:\n topic={} \n partition={} \n offset={} \n key={}",
+                                    result.getRecordMetadata().topic(),
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset(),
+                                    key
+                            );
+                        }
+                );
     }
 }

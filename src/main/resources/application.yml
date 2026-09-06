@@ -41,31 +41,25 @@ spring:
     # ==================================================
     # Kafka Producer
     # ==================================================
-    # producer:
-    # ==================================================
-    # Producer Serializer
-    # ==================================================
-    # Key / Value Serializer 不再直接配置在 application.yml。
-    # 原因：
-    # 当前 Producer 需要根据消息 Java 类型 “动态” （重点）选择 Serializer：
-    # String            -> StringSerializer
-    # OrderCreatedEvent -> JsonSerializer
-    # byte[]            -> ByteArraySerializer
-    # 具体配置见：KafkaProducerConfig.java
-
-
-    # ==================================================
-    # Kafka Consumer
-    # ==================================================
-    #    consumer:
-    #      group-id: order-service
-    #      auto-offset-reset: earliest
-    #      key-deserializer:
-    #        org.apache.kafka.common.serialization.StringDeserializer
-    #      value-deserializer:
-    #        org.springframework.kafka.support.serializer.JsonDeserializer
-    #      properties:
-    #        spring.json.trusted.packages: com.example.event
+    producer:
+      # Producer 发送消息后，
+      # 要等待所有 ISR 副本确认后才认为发送成功。
+      # all 与 -1 在 Kafka 中表示相同语义。
+      acks: all
+      retries: 100
+      properties:
+        # 开启 Kafka Producer 幂等发送。
+        # 主要解决 Producer 因网络抖动、超时、重试等原因
+        # 导致同一条消息被 Broker 重复写入的问题。
+        enable.idempotence: true
+        # 开启幂等 Producer 时，Kafka 要求该值不能大于 5。
+        # 在满足协议约束的情况下，Kafka 能利用 ProducerId + Sequence Number
+        # 保证重试时不产生重复写入，并维持分区内顺序。
+        max.in.flight.requests.per.connection: 5
+        delivery.timeout.ms: 5000
+        request.timeout.ms: 2000
+        retry.backoff.ms: 500
+        retry.backoff.max.ms: 500
     consumer:
       group-id: order-service
       auto-offset-reset: earliest

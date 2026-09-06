@@ -12,4 +12,6 @@ public final class KafkaTopicConstants {
     public static final String ORDER_CREATED = "order-created";
     // 订单创建事件 Dead Letter Topic。
     public static final String ORDER_CREATED_DLT = "order-created-dlt";
+    // 可靠性故障实验 Topic。
+    public static final String PRODUCER_RELIABILITY_TEST = "producer_reliability_test";
 }
