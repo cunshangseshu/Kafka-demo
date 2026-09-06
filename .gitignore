@@ -1,0 +1,9 @@
+target/
+.idea/
+*.iml
+.env
+.env.*
+!.env.example
+kafka_mysql_data/
+*.log
+.DS_Store

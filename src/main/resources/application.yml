@@ -1,6 +1,8 @@
 server:
   port: 8090
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: kafka-demo
 
@@ -9,9 +11,9 @@ spring:
 
 
   datasource:
-    url: jdbc:mysql://localhost:3308/kafka_demo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: kafka
-    password: kafka123
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3308}/${MYSQL_DATABASE:kafka_demo}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:kafka}
+    password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
@@ -64,8 +66,7 @@ spring:
   # ==============================
   docker:
     compose:
-      enabled: true
-      lifecycle-management: start-and-stop
+      enabled: false
 
 demo:
   kafka:
