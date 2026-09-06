@@ -51,6 +51,8 @@ Invoke-RestMethod -Method Post -Uri 'http://localhost:8090/api/kafka/orders/batc
 
 HTTP 响应表示请求已提交给 Producer；Broker 接收结果以异步回调为准，业务结果再查 MySQL。
 
+发送回调超时也不代表消息一定没有写入：本次 Broker Pause 实验出现过客户端超时后，Broker 恢复仍完成消费的情况，业务重发仍需幂等。
+
 ## 故障实验入口
 
 | 实验 | 操作与观察点 |
